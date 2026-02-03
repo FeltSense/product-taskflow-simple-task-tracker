@@ -1,36 +1,32 @@
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
+const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
+const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+
+function createServerSupabase() {
+  return createClient(supabaseUrl, supabaseServiceKey);
+}
+
 interface RouteParams {
   params: { id: string };
 }
 
-function createServerSupabase() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY;
-  
-  if (!supabaseUrl || !supabaseKey) {
-    throw new Error('Missing Supabase environment variables');
-  }
-  
-  return createClient(supabaseUrl, supabaseKey);
-}
-
-// GET /api/tasks/[id] - Get single task
+// GET /api/categories/[id] - Get single categorie
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = createServerSupabase();
     const { id } = params;
 
     const { data, error } = await supabase
-      .from('tasks')
+      .from('categories')
       .select('*')
       .eq('id', id)
       .single();
 
     if (error) {
       if (error.code === 'PGRST116') {
-        return NextResponse.json({ error: 'Task not found' }, { status: 404 });
+        return NextResponse.json({ error: 'Categorie not found' }, { status: 404 });
       }
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
@@ -42,7 +38,7 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// PATCH /api/tasks/[id] - Update task
+// PATCH /api/categories/[id] - Update categorie
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = createServerSupabase();
@@ -56,7 +52,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
     }
 
     const { data, error } = await supabase
-      .from('tasks')
+      .from('categories')
       .update({ ...body, updated_at: new Date().toISOString() })
       .eq('id', id)
       .select()
@@ -73,7 +69,7 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
   }
 }
 
-// DELETE /api/tasks/[id] - Delete task
+// DELETE /api/categories/[id] - Delete categorie
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
     const supabase = createServerSupabase();
@@ -86,7 +82,7 @@ export async function DELETE(request: NextRequest, { params }: RouteParams) {
     }
 
     const { error } = await supabase
-      .from('tasks')
+      .from('categories')
       .delete()
       .eq('id', id);
 

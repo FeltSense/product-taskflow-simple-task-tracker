@@ -3,17 +3,12 @@ import { createClient } from '@supabase/supabase-js';
 
 function createServerSupabase() {
   const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
+  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
   
-  return createClient(supabaseUrl, supabaseServiceKey, {
-    auth: {
-      autoRefreshToken: false,
-      persistSession: false
-    }
-  });
+  return createClient(supabaseUrl, supabaseKey);
 }
 
-// GET /api/users - List all users
+// GET /api/categories - List all categories
 export async function GET(request: NextRequest) {
   try {
     const supabase = createServerSupabase();
@@ -24,7 +19,7 @@ export async function GET(request: NextRequest) {
     const offset = (page - 1) * limit;
 
     const { data, error, count } = await supabase
-      .from('users')
+      .from('categories')
       .select('*', { count: 'exact' })
       .range(offset, offset + limit - 1)
       .order('created_at', { ascending: false });
@@ -48,7 +43,7 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// POST /api/users - Create new user
+// POST /api/categories - Create new categorie
 export async function POST(request: NextRequest) {
   try {
     const supabase = createServerSupabase();
@@ -61,7 +56,7 @@ export async function POST(request: NextRequest) {
     }
 
     const { data, error } = await supabase
-      .from('users')
+      .from('categories')
       .insert({ ...body, user_id: user.id })
       .select()
       .single();
