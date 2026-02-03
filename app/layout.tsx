@@ -3,7 +3,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: 'TaskFlow - Simple Task Tracker',
-  description: 'To help individuals and small teams achieve their goals through simple, intuitive task management that eliminates overwhelm and maximizes productivity.',
+  description: 'To provide the simplest yet effective way for individuals and small teams to stay organized and productive through focused task management.',
 };
 
 export default function RootLayout({
