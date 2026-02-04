@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-import { cookies } from 'next/headers';
+import { createServerSupabase } from '@/lib/supabase-server';
 
 interface RouteParams {
-  params: { id: string };
-}
-
-function createSupabaseClient() {
-  const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-  const supabaseKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-  return createClient(supabaseUrl, supabaseKey);
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/categories/[id] - Get single categorie
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createSupabaseClient();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
 
     const { data, error } = await supabase
       .from('categories')
@@ -41,8 +34,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH /api/categories/[id] - Update categorie
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createSupabaseClient();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
     const body = await request.json();
 
     // Get authenticated user
@@ -72,8 +65,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/categories/[id] - Delete categorie
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createSupabaseClient();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
 
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();

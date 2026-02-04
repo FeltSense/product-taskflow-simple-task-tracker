@@ -2,11 +2,11 @@
   "tasks": [
     {
       "id": "T001",
-      "title": "Set up database schema for tasks and users",
-      "description": "Design and implement the core database structure to store user accounts, tasks, and categories. This foundation enables all data persistence and relationships between users and their tasks.",
-      "featureId": "F005",
-      "featureName": "User Authentication and Data Persistence",
-      "featureContext": "Users need permanent storage for their tasks and secure account management",
+      "title": "Set up database schema for users and tasks",
+      "description": "Design and implement the core database tables to store user accounts and task data. This foundation enables all other features by providing persistent data storage with proper relationships between users and their tasks.",
+      "featureId": "F006",
+      "featureName": "User Authentication",
+      "featureContext": "Users need secure data storage to maintain their tasks across sessions",
       "subComponent": "Database Schema",
       "componentType": "data",
       "dependencies": [],
@@ -14,23 +14,23 @@
       "unblocks": [
         "T002",
         "T003",
-        "T006",
-        "T012"
+        "T007"
       ],
       "estimatedEffort": "medium",
       "complexity": "medium",
       "riskFlags": [
-        "Schema changes later require migrations"
+        "Database migration complexity"
       ],
       "acceptanceCriteria": [
-        "Users table stores email, password hash, and metadata",
-        "Tasks table stores title, description, due date, status, category reference",
-        "Categories table stores name and user reference",
-        "Foreign key relationships properly enforce data integrity"
+        "Users table stores email, password hash, and timestamps",
+        "Tasks table stores title, description, due_date, priority, status, category_id, user_id",
+        "Categories table stores name and user_id",
+        "Foreign key relationships are properly established",
+        "Database indexes are created for performance"
       ],
       "edgeCasesToHandle": [
         "Handle database connection failures gracefully",
-        "Ensure proper indexing for performance"
+        "Ensure data integrity with proper constraints"
       ],
       "cycle": 1,
       "cycleName": "Foundation",
@@ -38,11 +38,11 @@
     },
     {
       "id": "T002",
-      "title": "Implement user registration and login API",
-      "description": "Build secure authentication endpoints that allow users to create accounts and authenticate. This enables user-specific task storage and access control across the application.",
-      "featureId": "F005",
-      "featureName": "User Authentication and Data Persistence",
-      "featureContext": "Users need secure accounts to protect their task data",
+      "title": "Build user registration and login API endpoints",
+      "description": "Create secure authentication endpoints that handle user registration, login, and password validation. This enables users to create accounts and access their personal task data securely.",
+      "featureId": "F006",
+      "featureName": "User Authentication",
+      "featureContext": "Users need secure access to their personal task data",
       "subComponent": "Authentication API",
       "componentType": "logic",
       "dependencies": [
@@ -56,20 +56,22 @@
         "T004"
       ],
       "estimatedEffort": "medium",
-      "complexity": "high",
+      "complexity": "medium",
       "riskFlags": [
         "Security vulnerabilities",
         "Password handling complexity"
       ],
       "acceptanceCriteria": [
-        "POST /register creates new user with hashed password",
-        "POST /login validates credentials and returns secure token",
-        "Password validation enforces minimum security requirements",
-        "Proper error handling for duplicate emails and invalid credentials"
+        "POST /register creates new user with email validation",
+        "POST /login authenticates user and returns session token",
+        "Passwords are properly hashed before storage",
+        "Invalid credentials return appropriate error messages",
+        "Email uniqueness is enforced"
       ],
       "edgeCasesToHandle": [
-        "Handle duplicate email registration attempts",
-        "Rate limit login attempts to prevent brute force"
+        "Duplicate email registration attempts",
+        "Malformed email addresses",
+        "Weak password handling"
       ],
       "cycle": 1,
       "cycleName": "Foundation",
@@ -77,52 +79,12 @@
     },
     {
       "id": "T003",
-      "title": "Create authentication middleware and session management",
-      "description": "Implement middleware to verify user tokens and manage authenticated sessions. This ensures only authorized users can access their tasks and provides seamless login state management.",
-      "featureId": "F005",
-      "featureName": "User Authentication and Data Persistence",
-      "featureContext": "Users need persistent login sessions and route protection",
-      "subComponent": "Auth Middleware",
-      "componentType": "logic",
-      "dependencies": [
-        "T002"
-      ],
-      "blockedBy": [
-        "T002"
-      ],
-      "unblocks": [
-        "T006",
-        "T007",
-        "T008"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Token security",
-        "Session timeout handling"
-      ],
-      "acceptanceCriteria": [
-        "Middleware validates JWT tokens on protected routes",
-        "Invalid tokens return 401 unauthorized error",
-        "User context is available in protected route handlers",
-        "Token refresh mechanism works correctly"
-      ],
-      "edgeCasesToHandle": [
-        "Handle expired tokens gracefully",
-        "Manage concurrent sessions from multiple devices"
-      ],
-      "cycle": 1,
-      "cycleName": "Foundation",
-      "order": 3
-    },
-    {
-      "id": "T004",
-      "title": "Build login and registration user interface",
-      "description": "Create responsive forms for user authentication with proper validation and error handling. This provides the entry point for users to access their personal task management workspace.",
-      "featureId": "F005",
-      "featureName": "User Authentication and Data Persistence",
-      "featureContext": "Users need an intuitive way to create accounts and log in",
-      "subComponent": "Auth UI",
+      "title": "Create user registration and login forms",
+      "description": "Build responsive web forms for user registration and login with proper validation and error handling. These forms provide the user interface for account creation and access, connecting to the authentication API.",
+      "featureId": "F006",
+      "featureName": "User Authentication",
+      "featureContext": "Users need an intuitive way to create accounts and sign in",
+      "subComponent": "Authentication UI",
       "componentType": "ui",
       "dependencies": [
         "T002"
@@ -136,17 +98,59 @@
       "estimatedEffort": "medium",
       "complexity": "low",
       "riskFlags": [
-        "User experience complexity"
+        "Form validation complexity"
       ],
       "acceptanceCriteria": [
-        "Registration form validates email format and password strength",
-        "Login form handles authentication errors gracefully",
-        "Forms are responsive and accessible",
-        "Success states redirect users to main task view"
+        "Registration form collects email and password with confirmation",
+        "Login form has email and password fields",
+        "Client-side validation shows immediate feedback",
+        "Forms display server error messages clearly",
+        "Responsive design works on mobile and desktop"
       ],
       "edgeCasesToHandle": [
-        "Handle network timeouts during form submission",
-        "Provide clear feedback for validation errors"
+        "Form submission during network outage",
+        "Very long email addresses",
+        "Special characters in passwords"
+      ],
+      "cycle": 1,
+      "cycleName": "Foundation",
+      "order": 3
+    },
+    {
+      "id": "T004",
+      "title": "Implement session management and authentication middleware",
+      "description": "Create middleware that manages user sessions and protects authenticated routes throughout the application. This ensures users stay logged in across page refreshes and prevents unauthorized access to task data.",
+      "featureId": "F006",
+      "featureName": "User Authentication",
+      "featureContext": "Users need persistent login sessions and secure access control",
+      "subComponent": "Session Management",
+      "componentType": "logic",
+      "dependencies": [
+        "T002"
+      ],
+      "blockedBy": [
+        "T002"
+      ],
+      "unblocks": [
+        "T005",
+        "T007"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Session security vulnerabilities"
+      ],
+      "acceptanceCriteria": [
+        "Middleware validates session tokens on protected routes",
+        "Sessions expire after appropriate timeout period",
+        "Invalid sessions redirect to login page",
+        "User context is available throughout the application",
+        "Logout functionality clears session properly"
+      ],
+      "edgeCasesToHandle": [
+        "Expired session tokens during active use",
+        "Concurrent login sessions",
+        "Session hijacking attempts"
       ],
       "cycle": 1,
       "cycleName": "Foundation",
@@ -154,23 +158,24 @@
     },
     {
       "id": "T005",
-      "title": "Implement main application layout and navigation",
-      "description": "Create the core UI structure with header, navigation, and main content areas. This provides the foundation for all task management interfaces and ensures consistent user experience.",
+      "title": "Build main application layout and navigation",
+      "description": "Create the primary application shell with navigation, header, and main content areas. This layout provides the foundation for all task management features and ensures consistent user experience across the application.",
       "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need a clear, organized interface to manage their tasks",
-      "subComponent": "App Layout",
+      "featureName": "Task Management",
+      "featureContext": "Users need a clean, organized interface to access task management features",
+      "subComponent": "Application Layout",
       "componentType": "ui",
       "dependencies": [
+        "T003",
         "T004"
       ],
       "blockedBy": [
+        "T003",
         "T004"
       ],
       "unblocks": [
-        "T009",
-        "T010",
-        "T011"
+        "T006",
+        "T008"
       ],
       "estimatedEffort": "medium",
       "complexity": "low",
@@ -178,14 +183,16 @@
         "Responsive design complexity"
       ],
       "acceptanceCriteria": [
-        "Header displays user info and logout option",
-        "Navigation allows switching between main views",
-        "Layout is responsive across desktop and mobile",
-        "Loading states are handled appropriately"
+        "Header displays user email and logout button",
+        "Navigation provides access to main task views",
+        "Main content area adapts to different screen sizes",
+        "Loading states are handled gracefully",
+        "Consistent styling throughout the application"
       ],
       "edgeCasesToHandle": [
-        "Handle very long task lists without breaking layout",
-        "Graceful degradation on smaller screens"
+        "Very long user email addresses in header",
+        "Navigation on small mobile screens",
+        "Slow loading content"
       ],
       "cycle": 1,
       "cycleName": "Foundation",
@@ -193,129 +200,53 @@
     },
     {
       "id": "T006",
-      "title": "Build task creation API endpoint",
-      "description": "Implement backend endpoint to create new tasks with validation for required fields. This core functionality enables users to capture and store their work items in the system.",
+      "title": "Create task data model and API structure",
+      "description": "Define the task data structure and create API endpoints for basic CRUD operations on tasks. This establishes the foundation for all task management features and ensures consistent data handling throughout the application.",
       "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Task creation is the primary entry point for task management",
-      "subComponent": "Task Creation API",
+      "featureName": "Task Management",
+      "featureContext": "All task features depend on a solid data foundation and API structure",
+      "subComponent": "Task API",
       "componentType": "logic",
       "dependencies": [
         "T001",
-        "T003"
+        "T004"
       ],
       "blockedBy": [
         "T001",
-        "T003"
+        "T004"
       ],
       "unblocks": [
+        "T007",
         "T009"
       ],
       "estimatedEffort": "medium",
-      "complexity": "low",
+      "complexity": "medium",
       "riskFlags": [
-        "Input validation edge cases"
+        "API design decisions affecting future features"
       ],
       "acceptanceCriteria": [
-        "POST /tasks creates task with title, description, due date",
-        "Validates required fields and returns appropriate errors",
-        "Associates task with authenticated user",
-        "Returns created task with generated ID"
+        "GET /tasks returns user's tasks with proper filtering",
+        "POST /tasks creates new task with validation",
+        "PUT /tasks/:id updates existing task",
+        "DELETE /tasks/:id removes task",
+        "All endpoints require authentication and return appropriate errors"
       ],
       "edgeCasesToHandle": [
-        "Handle very long task titles and descriptions",
-        "Validate due date format and reasonable ranges"
+        "Updating non-existent tasks",
+        "Deleting tasks belonging to other users",
+        "Invalid task data formats"
       ],
-      "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 1
+      "cycle": 1,
+      "cycleName": "Foundation",
+      "order": 6
     },
     {
       "id": "T007",
-      "title": "Build task retrieval and listing API",
-      "description": "Implement endpoint to fetch user's tasks with basic sorting and pagination. This enables users to view their existing tasks and forms the foundation for task management workflows.",
+      "title": "Build task creation form and functionality",
+      "description": "Create an intuitive form that allows users to add new tasks with title, description, due date, and priority. This core feature enables users to capture their to-do items quickly and efficiently with all essential information.",
       "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need to view and access their existing tasks",
-      "subComponent": "Task Retrieval API",
-      "componentType": "logic",
-      "dependencies": [
-        "T001",
-        "T003"
-      ],
-      "blockedBy": [
-        "T001",
-        "T003"
-      ],
-      "unblocks": [
-        "T010"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Performance with large task lists"
-      ],
-      "acceptanceCriteria": [
-        "GET /tasks returns user's tasks sorted by creation date",
-        "Supports pagination for large task lists",
-        "Only returns tasks belonging to authenticated user",
-        "Includes all task fields including status and category"
-      ],
-      "edgeCasesToHandle": [
-        "Handle users with hundreds of tasks efficiently",
-        "Return empty list gracefully for new users"
-      ],
-      "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 2
-    },
-    {
-      "id": "T008",
-      "title": "Build task update and deletion API",
-      "description": "Implement endpoints for editing existing tasks and deleting unwanted tasks. This completes the core CRUD operations and allows users to maintain their task lists effectively.",
-      "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need to modify and remove tasks as their work evolves",
-      "subComponent": "Task Update API",
-      "componentType": "logic",
-      "dependencies": [
-        "T001",
-        "T003"
-      ],
-      "blockedBy": [
-        "T001",
-        "T003"
-      ],
-      "unblocks": [
-        "T011"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Concurrent edit conflicts",
-        "Accidental deletions"
-      ],
-      "acceptanceCriteria": [
-        "PUT /tasks/:id updates task fields with validation",
-        "DELETE /tasks/:id removes task permanently",
-        "Operations only succeed for task owner",
-        "Returns appropriate errors for non-existent tasks"
-      ],
-      "edgeCasesToHandle": [
-        "Handle deletion of non-existent tasks gracefully",
-        "Prevent users from modifying other users' tasks"
-      ],
-      "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 3
-    },
-    {
-      "id": "T009",
-      "title": "Create task creation form component",
-      "description": "Build an intuitive form interface for creating new tasks with fields for title, description, and due date. This provides users with a smooth task entry experience and proper input validation.",
-      "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need a quick, efficient way to capture new tasks",
+      "featureName": "Task Management",
+      "featureContext": "Users need a fast, easy way to capture new tasks as they arise",
       "subComponent": "Task Creation Form",
       "componentType": "ui",
       "dependencies": [
@@ -327,495 +258,646 @@
         "T006"
       ],
       "unblocks": [
-        "T015"
+        "T008",
+        "T010"
       ],
       "estimatedEffort": "medium",
-      "complexity": "low",
+      "complexity": "medium",
       "riskFlags": [
-        "Form validation complexity"
+        "Form validation complexity",
+        "Date picker implementation"
       ],
       "acceptanceCriteria": [
-        "Form includes title, description, and due date fields",
-        "Client-side validation prevents empty submissions",
-        "Form resets after successful task creation",
-        "Error handling displays server validation messages"
+        "Form has fields for title, description, due date, and priority",
+        "Title field is required and validated",
+        "Due date uses calendar picker interface",
+        "Priority dropdown shows High, Medium, Low options",
+        "Form submission creates task and updates task list immediately"
       ],
       "edgeCasesToHandle": [
-        "Handle form submission during network interruption",
-        "Prevent duplicate submissions from rapid clicking"
+        "Empty form submission",
+        "Very long task titles or descriptions",
+        "Invalid date selections",
+        "Form submission during network issues"
       ],
       "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 4
+      "cycleName": "Core Task Management",
+      "order": 1
+    },
+    {
+      "id": "T008",
+      "title": "Build main task list display component",
+      "description": "Create the primary interface for viewing all user tasks with proper formatting, sorting, and visual hierarchy. This central component gives users an overview of all their tasks and serves as the hub for task management activities.",
+      "featureId": "F001",
+      "featureName": "Task Management",
+      "featureContext": "Users need to see all their tasks in an organized, scannable format",
+      "subComponent": "Task List View",
+      "componentType": "ui",
+      "dependencies": [
+        "T005",
+        "T006"
+      ],
+      "blockedBy": [
+        "T005",
+        "T006"
+      ],
+      "unblocks": [
+        "T009",
+        "T011"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Performance with large task lists",
+        "Sorting complexity"
+      ],
+      "acceptanceCriteria": [
+        "Tasks display in clean, scannable list format",
+        "Each task shows title, due date, priority, and status",
+        "List updates immediately when tasks are added or modified",
+        "Empty state shows helpful message for new users",
+        "List performs well with 100+ tasks"
+      ],
+      "edgeCasesToHandle": [
+        "No tasks to display",
+        "Tasks with very long titles",
+        "Tasks without due dates or priorities",
+        "Loading states during data fetch"
+      ],
+      "cycle": 2,
+      "cycleName": "Core Task Management",
+      "order": 2
+    },
+    {
+      "id": "T009",
+      "title": "Implement task editing and deletion functionality",
+      "description": "Add the ability to modify existing tasks and delete unwanted ones through intuitive UI controls. This completes the basic CRUD operations and gives users full control over their task data with proper confirmation flows.",
+      "featureId": "F001",
+      "featureName": "Task Management",
+      "featureContext": "Users need to update task details and remove completed or cancelled tasks",
+      "subComponent": "Task Edit/Delete",
+      "componentType": "ui",
+      "dependencies": [
+        "T006",
+        "T008"
+      ],
+      "blockedBy": [
+        "T006",
+        "T008"
+      ],
+      "unblocks": [
+        "T011",
+        "T013"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Accidental deletion risk",
+        "Edit form complexity"
+      ],
+      "acceptanceCriteria": [
+        "Edit button opens task in editable form with current values",
+        "Delete button shows confirmation dialog before removing task",
+        "Edit form saves changes and updates list immediately",
+        "Cancel functionality discards unsaved changes",
+        "Optimistic updates provide immediate feedback"
+      ],
+      "edgeCasesToHandle": [
+        "Editing task that was deleted by another session",
+        "Network failure during save operation",
+        "Accidental deletion clicks",
+        "Concurrent edits from multiple sessions"
+      ],
+      "cycle": 2,
+      "cycleName": "Core Task Management",
+      "order": 3
     },
     {
       "id": "T010",
-      "title": "Build task list display component",
-      "description": "Create a responsive component to display tasks in an organized list format with visual hierarchy. This serves as the main interface where users interact with their tasks daily.",
-      "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need a clear overview of all their tasks",
-      "subComponent": "Task List Display",
+      "title": "Create task completion toggle functionality",
+      "description": "Implement the ability to mark tasks as complete or incomplete with immediate visual feedback and status updates. This satisfying interaction is core to the task management experience and provides users with a sense of progress.",
+      "featureId": "F002",
+      "featureName": "Task Status Tracking",
+      "featureContext": "Users need the satisfying experience of marking tasks complete",
+      "subComponent": "Task Status Toggle",
       "componentType": "ui",
       "dependencies": [
-        "T005",
-        "T007"
+        "T007",
+        "T008"
       ],
       "blockedBy": [
-        "T005",
-        "T007"
+        "T007",
+        "T008"
       ],
       "unblocks": [
-        "T013",
-        "T016"
+        "T011",
+        "T012"
       ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
+      "estimatedEffort": "small",
+      "complexity": "low",
       "riskFlags": [
-        "Performance with many tasks",
-        "Mobile responsiveness"
+        "State synchronization issues"
       ],
       "acceptanceCriteria": [
-        "Displays tasks in chronological order with clear visual separation",
-        "Shows task title, description, due date, and status",
-        "Responsive design works on mobile and desktop",
-        "Loading states while fetching tasks"
+        "Checkbox or button toggles task completion status",
+        "Completed tasks show visual distinction (strikethrough, dimmed)",
+        "Status changes save immediately to database",
+        "Completion timestamp is recorded",
+        "Toggle works consistently across all task views"
       ],
       "edgeCasesToHandle": [
-        "Handle empty task list with helpful messaging",
-        "Graceful handling of very long task titles"
+        "Network failure during status update",
+        "Rapid clicking on toggle button",
+        "Status changes while task is being edited"
       ],
       "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 5
+      "cycleName": "Core Task Management",
+      "order": 4
     },
     {
       "id": "T011",
-      "title": "Implement task editing and deletion interface",
-      "description": "Build intuitive controls for editing task details and deleting tasks with confirmation dialogs. This completes the core task management workflow and ensures users can maintain their task lists.",
-      "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need to modify tasks as requirements change",
-      "subComponent": "Task Edit Interface",
+      "title": "Implement visual indicators for task status",
+      "description": "Create clear visual distinctions between completed and incomplete tasks using styling, icons, and layout changes. This visual feedback helps users quickly identify task states and provides satisfaction when completing items.",
+      "featureId": "F002",
+      "featureName": "Task Status Tracking",
+      "featureContext": "Users need immediate visual feedback about task completion status",
+      "subComponent": "Status Visual Design",
       "componentType": "ui",
       "dependencies": [
-        "T005",
-        "T008"
+        "T009",
+        "T010"
       ],
       "blockedBy": [
-        "T005",
-        "T008"
+        "T009",
+        "T010"
       ],
       "unblocks": [
-        "T017"
+        "T012"
       ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
+      "estimatedEffort": "small",
+      "complexity": "low",
       "riskFlags": [
-        "Accidental data loss",
-        "Edit state management"
+        "Accessibility compliance"
       ],
       "acceptanceCriteria": [
-        "Edit mode toggles inline or in modal dialog",
-        "Delete action requires user confirmation",
-        "Changes are saved automatically or with clear save button",
-        "Cancel option restores original values"
+        "Completed tasks show strikethrough text and dimmed appearance",
+        "Incomplete tasks have clear, readable styling",
+        "Checkmarks or icons indicate completion status",
+        "Visual changes are accessible to colorblind users",
+        "Status indicators work across different screen sizes"
       ],
       "edgeCasesToHandle": [
-        "Handle edit conflicts when task is modified elsewhere",
-        "Prevent accidental deletion with confirmation step"
+        "Tasks with very long titles and status indicators",
+        "Color accessibility for various visual impairments",
+        "Status changes during loading states"
       ],
       "cycle": 2,
-      "cycleName": "Core Features",
-      "order": 6
+      "cycleName": "Core Task Management",
+      "order": 5
     },
     {
       "id": "T012",
-      "title": "Build category management API",
-      "description": "Implement backend endpoints for creating, updating, and deleting task categories. This enables users to organize their tasks into meaningful groups and provides the foundation for category-based filtering.",
-      "featureId": "F003",
-      "featureName": "Task Organization with Categories",
-      "featureContext": "Users need to organize tasks into logical groups",
-      "subComponent": "Category API",
+      "title": "Add completion timestamp tracking and display",
+      "description": "Store and display when tasks were completed to provide users with progress insights and a sense of accomplishment. This feature adds valuable context about productivity patterns and task completion history.",
+      "featureId": "F002",
+      "featureName": "Task Status Tracking",
+      "featureContext": "Users benefit from seeing when they completed tasks for progress tracking",
+      "subComponent": "Completion Timestamps",
       "componentType": "logic",
       "dependencies": [
-        "T001",
-        "T003"
+        "T010",
+        "T011"
       ],
       "blockedBy": [
-        "T001",
-        "T003"
+        "T010",
+        "T011"
       ],
       "unblocks": [
+        "T020"
+      ],
+      "estimatedEffort": "small",
+      "complexity": "low",
+      "riskFlags": [
+        "Date formatting complexity"
+      ],
+      "acceptanceCriteria": [
+        "Completion timestamp is stored when task is marked complete",
+        "Timestamp is cleared when task is marked incomplete",
+        "Completed tasks show 'Completed on [date]' in readable format",
+        "Timestamps are displayed in user's local timezone",
+        "Historical completion data is preserved"
+      ],
+      "edgeCasesToHandle": [
+        "Tasks completed and uncompleted multiple times",
+        "Timezone changes affecting timestamp display",
+        "Tasks completed before timestamp feature was added"
+      ],
+      "cycle": 2,
+      "cycleName": "Core Task Management",
+      "order": 6
+    },
+    {
+      "id": "T013",
+      "title": "Implement priority level assignment and indicators",
+      "description": "Add the ability to set High, Medium, or Low priority levels for tasks with clear visual indicators like colors or icons. This helps users identify their most important work and make better decisions about task ordering.",
+      "featureId": "F003",
+      "featureName": "Task Prioritization",
+      "featureContext": "Users need to identify and focus on their most important tasks",
+      "subComponent": "Priority System",
+      "componentType": "ui",
+      "dependencies": [
+        "T009"
+      ],
+      "blockedBy": [
+        "T009"
+      ],
+      "unblocks": [
+        "T014",
         "T015"
       ],
       "estimatedEffort": "medium",
       "complexity": "low",
       "riskFlags": [
-        "Category deletion with existing tasks"
+        "Color accessibility",
+        "Icon selection"
       ],
       "acceptanceCriteria": [
-        "CRUD operations for categories with name and color",
-        "Categories are user-specific and properly isolated",
-        "Handles category deletion when tasks are assigned",
-        "Returns categories sorted alphabetically"
+        "Priority dropdown shows High, Medium, Low options",
+        "High priority tasks display with red color/icon",
+        "Medium priority tasks display with yellow color/icon",
+        "Low priority tasks display with green color/icon",
+        "Priority changes save immediately and update visual indicators"
       ],
       "edgeCasesToHandle": [
-        "Handle deletion of category with assigned tasks",
-        "Prevent duplicate category names for same user"
+        "Tasks without assigned priority",
+        "Priority indicators on different screen sizes",
+        "Colorblind accessibility for priority colors"
       ],
       "cycle": 3,
-      "cycleName": "Organization & Enhancement",
+      "cycleName": "Priority and Organization",
       "order": 1
-    },
-    {
-      "id": "T013",
-      "title": "Implement task status toggle functionality",
-      "description": "Build the core complete/incomplete status management with visual feedback. This provides users with the satisfying experience of marking tasks complete while maintaining visibility of their accomplishments.",
-      "featureId": "F002",
-      "featureName": "Task Status Management",
-      "featureContext": "Users need to track task completion progress",
-      "subComponent": "Status Toggle",
-      "componentType": "logic",
-      "dependencies": [
-        "T010",
-        "T008"
-      ],
-      "blockedBy": [
-        "T010",
-        "T008"
-      ],
-      "unblocks": [
-        "T016"
-      ],
-      "estimatedEffort": "small",
-      "complexity": "low",
-      "riskFlags": [
-        "State synchronization"
-      ],
-      "acceptanceCriteria": [
-        "Clicking checkbox toggles task completion status",
-        "Status change persists to database immediately",
-        "Visual feedback confirms status change",
-        "Completed tasks remain visible but distinguished"
-      ],
-      "edgeCasesToHandle": [
-        "Handle rapid clicking to prevent state conflicts",
-        "Graceful fallback if status update fails"
-      ],
-      "cycle": 3,
-      "cycleName": "Organization & Enhancement",
-      "order": 2
     },
     {
       "id": "T014",
-      "title": "Build due date tracking and visual indicators",
-      "description": "Implement due date assignment and visual highlighting for upcoming and overdue tasks. This helps users prioritize their work and avoid missing important deadlines.",
-      "featureId": "F004",
-      "featureName": "Due Date Tracking",
-      "featureContext": "Users need to prioritize tasks based on deadlines",
-      "subComponent": "Due Date Display",
-      "componentType": "ui",
+      "title": "Create priority-based task sorting and filtering",
+      "description": "Allow users to sort their task list by priority level and filter to show only high-priority items. This functionality helps users focus on what matters most and reduces cognitive load when reviewing their task list.",
+      "featureId": "F003",
+      "featureName": "Task Prioritization",
+      "featureContext": "Users need to quickly access their most important tasks",
+      "subComponent": "Priority Sorting",
+      "componentType": "logic",
       "dependencies": [
-        "T010"
+        "T013"
       ],
       "blockedBy": [
-        "T010"
+        "T013"
       ],
       "unblocks": [
-        "T017"
+        "T015"
       ],
       "estimatedEffort": "medium",
       "complexity": "medium",
       "riskFlags": [
-        "Timezone handling",
-        "Date calculation accuracy"
+        "Sorting performance with large lists"
       ],
       "acceptanceCriteria": [
-        "Tasks display due dates with appropriate formatting",
-        "Overdue tasks are visually highlighted in red",
-        "Tasks due soon show warning indicators",
-        "Date picker allows easy due date selection"
+        "Sort dropdown includes 'Priority' option",
+        "Priority sort shows High, then Medium, then Low tasks",
+        "Filter options include 'High Priority Only'",
+        "Sort preferences persist during session",
+        "Sorting works with other filters and search"
       ],
       "edgeCasesToHandle": [
-        "Handle timezone differences correctly",
-        "Display relative dates (today, tomorrow, next week)"
+        "Tasks with no priority assigned",
+        "Sorting during task creation/editing",
+        "Mixed priority and date sorting preferences"
       ],
       "cycle": 3,
-      "cycleName": "Organization & Enhancement",
-      "order": 3
+      "cycleName": "Priority and Organization",
+      "order": 2
     },
     {
       "id": "T015",
-      "title": "Create category selection and management interface",
-      "description": "Build UI components for creating categories and assigning them to tasks. This enables users to organize their tasks into meaningful groups and provides visual organization through color coding.",
+      "title": "Design prominent display for high-priority tasks",
+      "description": "Create visual emphasis for high-priority tasks to ensure they stand out in the task list and capture user attention. This might include special positioning, styling, or dedicated sections to highlight urgent work.",
       "featureId": "F003",
-      "featureName": "Task Organization with Categories",
-      "featureContext": "Users need intuitive ways to categorize and organize tasks",
-      "subComponent": "Category UI",
+      "featureName": "Task Prioritization",
+      "featureContext": "High-priority tasks must be immediately visible to guide user focus",
+      "subComponent": "Priority Visual Design",
       "componentType": "ui",
       "dependencies": [
-        "T009",
-        "T012"
+        "T013",
+        "T014"
       ],
       "blockedBy": [
-        "T009",
-        "T012"
-      ],
-      "unblocks": [
-        "T019"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Color selection complexity",
-        "Category management UX"
-      ],
-      "acceptanceCriteria": [
-        "Dropdown or selector for assigning categories to tasks",
-        "Interface for creating new categories with names and colors",
-        "Categories display with consistent color coding",
-        "Category management doesn't disrupt task creation flow"
-      ],
-      "edgeCasesToHandle": [
-        "Handle users with many categories gracefully",
-        "Provide default uncategorized option"
-      ],
-      "cycle": 3,
-      "cycleName": "Organization & Enhancement",
-      "order": 4
-    },
-    {
-      "id": "T016",
-      "title": "Enhance task list with completion status visual design",
-      "description": "Improve task list display to clearly distinguish completed and active tasks with strikethrough text, opacity changes, and visual hierarchy. This provides immediate visual feedback on progress and accomplishments.",
-      "featureId": "F002",
-      "featureName": "Task Status Management",
-      "featureContext": "Users need clear visual feedback on task completion",
-      "subComponent": "Status Visual Design",
-      "componentType": "ui",
-      "dependencies": [
-        "T010",
-        "T013"
-      ],
-      "blockedBy": [
-        "T010",
-        "T013"
+        "T013",
+        "T014"
       ],
       "unblocks": [],
       "estimatedEffort": "small",
       "complexity": "low",
       "riskFlags": [
-        "Accessibility concerns"
+        "Visual hierarchy balance"
       ],
       "acceptanceCriteria": [
-        "Completed tasks show strikethrough text and reduced opacity",
-        "Checkboxes clearly indicate completion state",
-        "Completed tasks group separately or sort to bottom",
-        "Visual design remains accessible and readable"
+        "High-priority tasks appear at top of list regardless of other sorting",
+        "High-priority tasks have bold styling or background highlight",
+        "Visual emphasis doesn't overwhelm other task information",
+        "Design works well with completed task styling",
+        "Responsive design maintains priority visibility on mobile"
       ],
       "edgeCasesToHandle": [
-        "Ensure completed tasks remain readable",
-        "Handle long lists with many completed items"
+        "Many high-priority tasks creating visual overload",
+        "High-priority completed tasks visual treatment",
+        "Priority emphasis with very long task titles"
       ],
       "cycle": 3,
-      "cycleName": "Organization & Enhancement",
-      "order": 5
-    },
-    {
-      "id": "T017",
-      "title": "Implement task sorting and basic organization features",
-      "description": "Add sorting options for tasks by due date, creation date, and completion status. This helps users organize their view and focus on the most relevant tasks for their current priorities.",
-      "featureId": "F004",
-      "featureName": "Due Date Tracking",
-      "featureContext": "Users need to prioritize tasks effectively",
-      "subComponent": "Task Sorting",
-      "componentType": "logic",
-      "dependencies": [
-        "T011",
-        "T014"
-      ],
-      "blockedBy": [
-        "T011",
-        "T014"
-      ],
-      "unblocks": [
-        "T019"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Performance with large lists",
-        "Sort stability"
-      ],
-      "acceptanceCriteria": [
-        "Users can sort tasks by due date, creation date, or status",
-        "Default sort shows incomplete tasks first, then by due date",
-        "Sort selection persists during session",
-        "Sorting works efficiently with large task lists"
-      ],
-      "edgeCasesToHandle": [
-        "Handle tasks with no due date in sorting",
-        "Maintain stable sort order for equal items"
-      ],
-      "cycle": 3,
-      "cycleName": "Organization & Enhancement",
-      "order": 6
-    },
-    {
-      "id": "T018",
-      "title": "Build search functionality for tasks",
-      "description": "Implement text search across task titles and descriptions with real-time filtering. This enables users to quickly find specific tasks in large lists and improves overall productivity.",
-      "featureId": "F006",
-      "featureName": "Search and Filter Functionality",
-      "featureContext": "Users need to find specific tasks quickly",
-      "subComponent": "Search Feature",
-      "componentType": "logic",
-      "dependencies": [
-        "T007"
-      ],
-      "blockedBy": [
-        "T007"
-      ],
-      "unblocks": [
-        "T019"
-      ],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Search performance",
-        "Special character handling"
-      ],
-      "acceptanceCriteria": [
-        "Search input filters tasks by title and description text",
-        "Results update in real-time as user types",
-        "Search is case-insensitive and handles partial matches",
-        "Clear search option restores full task list"
-      ],
-      "edgeCasesToHandle": [
-        "Handle search with special characters and symbols",
-        "Optimize search performance for large task lists"
-      ],
-      "cycle": 4,
-      "cycleName": "Launch Prep",
-      "order": 1
-    },
-    {
-      "id": "T019",
-      "title": "Implement category and status filtering",
-      "description": "Build filtering interface to show only tasks from specific categories or with particular completion status. This helps users focus on relevant subsets of their work and reduces cognitive load.",
-      "featureId": "F006",
-      "featureName": "Search and Filter Functionality",
-      "featureContext": "Users need to focus on specific types of tasks",
-      "subComponent": "Filter Interface",
-      "componentType": "ui",
-      "dependencies": [
-        "T015",
-        "T017",
-        "T018"
-      ],
-      "blockedBy": [
-        "T015",
-        "T017",
-        "T018"
-      ],
-      "unblocks": [],
-      "estimatedEffort": "medium",
-      "complexity": "medium",
-      "riskFlags": [
-        "Filter combination complexity",
-        "State management"
-      ],
-      "acceptanceCriteria": [
-        "Filter options for category, completion status, and due date ranges",
-        "Multiple filters can be applied simultaneously",
-        "Active filters are clearly displayed with remove options",
-        "Filter state persists during session"
-      ],
-      "edgeCasesToHandle": [
-        "Handle filter combinations that return no results",
-        "Clear indication when filters are active"
-      ],
-      "cycle": 4,
-      "cycleName": "Launch Prep",
-      "order": 2
-    },
-    {
-      "id": "T020",
-      "title": "Optimize application performance and loading states",
-      "description": "Implement performance optimizations including lazy loading, caching, and smooth loading states. This ensures the application remains responsive even with large numbers of tasks and provides a polished user experience.",
-      "featureId": "F005",
-      "featureName": "User Authentication and Data Persistence",
-      "featureContext": "Users expect fast, responsive applications",
-      "subComponent": "Performance Layer",
-      "componentType": "logic",
-      "dependencies": [
-        "T007",
-        "T018"
-      ],
-      "blockedBy": [
-        "T007",
-        "T018"
-      ],
-      "unblocks": [],
-      "estimatedEffort": "large",
-      "complexity": "high",
-      "riskFlags": [
-        "Optimization complexity",
-        "Caching strategies"
-      ],
-      "acceptanceCriteria": [
-        "Task lists load within 2 seconds on average",
-        "Search and filtering responses are under 500ms",
-        "Smooth loading states for all async operations",
-        "Pagination or virtual scrolling for large task lists"
-      ],
-      "edgeCasesToHandle": [
-        "Handle slow network connections gracefully",
-        "Prevent UI blocking during heavy operations"
-      ],
-      "cycle": 4,
-      "cycleName": "Launch Prep",
+      "cycleName": "Priority and Organization",
       "order": 3
     },
     {
-      "id": "T021",
-      "title": "Conduct final testing and bug fixes",
-      "description": "Perform comprehensive testing across all features, browsers, and devices to identify and fix critical issues. This ensures a stable launch with minimal user-facing problems.",
-      "featureId": "F001",
-      "featureName": "Task Creation and Management",
-      "featureContext": "Users need a reliable, bug-free experience",
-      "subComponent": "Quality Assurance",
-      "componentType": "integration",
+      "id": "T016",
+      "title": "Build due date calendar picker and validation",
+      "description": "Implement a user-friendly date picker interface for setting task due dates with proper validation to prevent past dates or invalid selections. This component enables effective deadline management for time-sensitive tasks.",
+      "featureId": "F004",
+      "featureName": "Due Date Management",
+      "featureContext": "Users need an intuitive way to set and manage task deadlines",
+      "subComponent": "Date Picker",
+      "componentType": "ui",
+      "dependencies": [],
+      "blockedBy": [],
+      "unblocks": [
+        "T017",
+        "T018"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Date picker library compatibility",
+        "Timezone handling"
+      ],
+      "acceptanceCriteria": [
+        "Calendar picker opens when due date field is clicked",
+        "Selected date populates the form field correctly",
+        "Past dates show warning but don't prevent selection",
+        "Date format displays consistently (e.g., MM/DD/YYYY)",
+        "Picker works on both desktop and mobile devices"
+      ],
+      "edgeCasesToHandle": [
+        "Selecting dates in different timezones",
+        "Leap year date selections",
+        "Date picker on small mobile screens",
+        "Invalid date inputs typed directly"
+      ],
+      "cycle": 3,
+      "cycleName": "Priority and Organization",
+      "order": 4
+    },
+    {
+      "id": "T017",
+      "title": "Create overdue and upcoming deadline indicators",
+      "description": "Implement visual alerts for overdue tasks and approaching deadlines to help users manage time-sensitive work effectively. These indicators should be prominent enough to capture attention without overwhelming the interface.",
+      "featureId": "F004",
+      "featureName": "Due Date Management",
+      "featureContext": "Users need clear warnings about missed and approaching deadlines",
+      "subComponent": "Due Date Alerts",
+      "componentType": "ui",
+      "dependencies": [
+        "T016"
+      ],
+      "blockedBy": [
+        "T016"
+      ],
+      "unblocks": [
+        "T018"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Date calculation accuracy",
+        "Timezone issues"
+      ],
+      "acceptanceCriteria": [
+        "Overdue tasks display with red background or border",
+        "Tasks due today show orange warning indicator",
+        "Tasks due within 3 days show yellow upcoming indicator",
+        "Due date calculations account for user timezone",
+        "Indicators update automatically at midnight"
+      ],
+      "edgeCasesToHandle": [
+        "Tasks due at specific times vs. end of day",
+        "Timezone changes affecting due date calculations",
+        "Overdue indicators on completed tasks",
+        "Date calculations around daylight saving changes"
+      ],
+      "cycle": 3,
+      "cycleName": "Priority and Organization",
+      "order": 5
+    },
+    {
+      "id": "T018",
+      "title": "Implement due date sorting and filtering options",
+      "description": "Add sorting by due date (earliest first) and filtering options to show only overdue tasks or tasks due within specific timeframes. This helps users focus on time-sensitive work and manage deadlines effectively.",
+      "featureId": "F004",
+      "featureName": "Due Date Management",
+      "featureContext": "Users need to quickly access tasks by deadline urgency",
+      "subComponent": "Due Date Sorting",
+      "componentType": "logic",
       "dependencies": [
         "T016",
+        "T017"
+      ],
+      "blockedBy": [
+        "T016",
+        "T017"
+      ],
+      "unblocks": [
+        "T019"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Complex date sorting logic"
+      ],
+      "acceptanceCriteria": [
+        "Sort by due date shows earliest dates first",
+        "Tasks without due dates appear after dated tasks",
+        "Filter options include 'Overdue', 'Due Today', 'Due This Week'",
+        "Date sorting works with other sort criteria",
+        "Filters can be combined with search and priority filters"
+      ],
+      "edgeCasesToHandle": [
+        "Tasks with no due date in date-sorted list",
+        "Multiple date filters applied simultaneously",
+        "Date sorting with different timezones",
+        "Completed tasks in date-filtered views"
+      ],
+      "cycle": 3,
+      "cycleName": "Priority and Organization",
+      "order": 6
+    },
+    {
+      "id": "T019",
+      "title": "Build task category creation and management",
+      "description": "Create the interface and logic for users to create custom categories or lists to organize their tasks by project, context, or personal system. This organizational feature helps users group related tasks and reduce mental load.",
+      "featureId": "F005",
+      "featureName": "Task Organization",
+      "featureContext": "Users need to group related tasks for better organization",
+      "subComponent": "Category Management",
+      "componentType": "ui",
+      "dependencies": [
+        "T018"
+      ],
+      "blockedBy": [
+        "T018"
+      ],
+      "unblocks": [
+        "T020",
+        "T021"
+      ],
+      "estimatedEffort": "large",
+      "complexity": "medium",
+      "riskFlags": [
+        "Data migration complexity",
+        "Category hierarchy decisions"
+      ],
+      "acceptanceCriteria": [
+        "Users can create new categories with custom names",
+        "Category list shows in sidebar or dropdown menu",
+        "Default 'Uncategorized' category exists for new tasks",
+        "Users can edit category names and delete empty categories",
+        "Category creation validates name uniqueness and length"
+      ],
+      "edgeCasesToHandle": [
+        "Deleting category that contains tasks",
+        "Very long category names",
+        "Special characters in category names",
+        "Maximum number of categories per user"
+      ],
+      "cycle": 4,
+      "cycleName": "Polish and Enhancement",
+      "order": 1
+    },
+    {
+      "id": "T020",
+      "title": "Implement task assignment to categories",
+      "description": "Add the ability to assign tasks to categories during creation and editing, with easy category switching through dropdown selection. This completes the organizational system and allows users to group tasks meaningfully.",
+      "featureId": "F005",
+      "featureName": "Task Organization",
+      "featureContext": "Users need to assign tasks to their organizational system",
+      "subComponent": "Task Categorization",
+      "componentType": "ui",
+      "dependencies": [
+        "T012",
+        "T019"
+      ],
+      "blockedBy": [
+        "T012",
+        "T019"
+      ],
+      "unblocks": [
+        "T021"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Data consistency issues"
+      ],
+      "acceptanceCriteria": [
+        "Task creation form includes category dropdown",
+        "Task edit form allows category changes",
+        "Category dropdown shows user's custom categories",
+        "Tasks display their assigned category in list view",
+        "Bulk category assignment for multiple selected tasks"
+      ],
+      "edgeCasesToHandle": [
+        "Assigning task to deleted category",
+        "Category dropdown with many categories",
+        "Tasks created before category system existed"
+      ],
+      "cycle": 4,
+      "cycleName": "Polish and Enhancement",
+      "order": 2
+    },
+    {
+      "id": "T021",
+      "title": "Create category filtering and organization views",
+      "description": "Build filtering options to show tasks from specific categories and create organized views where users can see tasks grouped by category. This makes the organizational system useful for daily task management workflows.",
+      "featureId": "F005",
+      "featureName": "Task Organization",
+      "featureContext": "Users need to view and work within their organizational system",
+      "subComponent": "Category Views",
+      "componentType": "ui",
+      "dependencies": [
         "T019",
         "T020"
       ],
       "blockedBy": [
-        "T016",
         "T019",
         "T020"
+      ],
+      "unblocks": [
+        "T022"
+      ],
+      "estimatedEffort": "medium",
+      "complexity": "medium",
+      "riskFlags": [
+        "Performance with many categories"
+      ],
+      "acceptanceCriteria": [
+        "Filter dropdown includes all user categories",
+        "Selecting category shows only tasks in that category",
+        "Category view shows collapsible sections for each category",
+        "Task counts display next to category names",
+        "Empty categories show helpful empty state message"
+      ],
+      "edgeCasesToHandle": [
+        "Categories with no tasks",
+        "Very large categories with many tasks",
+        "Category names that are very long",
+        "Filtering by multiple categories simultaneously"
+      ],
+      "cycle": 4,
+      "cycleName": "Polish and Enhancement",
+      "order": 3
+    },
+    {
+      "id": "T022",
+      "title": "Add password reset and basic account settings",
+      "description": "Implement password reset functionality and basic account management features to complete the user authentication system. This provides users with essential account security and management capabilities.",
+      "featureId": "F006",
+      "featureName": "User Authentication",
+      "featureContext": "Users need secure way to recover access and manage their accounts",
+      "subComponent": "Account Management",
+      "componentType": "integration",
+      "dependencies": [
+        "T021"
+      ],
+      "blockedBy": [
+        "T021"
       ],
       "unblocks": [],
       "estimatedEffort": "medium",
       "complexity": "medium",
       "riskFlags": [
-        "Time constraints",
-        "Scope creep"
+        "Email delivery reliability",
+        "Security token management"
       ],
       "acceptanceCriteria": [
-        "All core user flows work without errors",
-        "Application functions correctly on major browsers",
-        "Mobile responsiveness verified across devices",
-        "Error handling provides helpful user feedback"
+        "Forgot password link sends reset email to user",
+        "Reset link expires after reasonable time period",
+        "Password reset form validates new password strength",
+        "Account settings page allows password changes",
+        "Email address changes require verification"
       ],
       "edgeCasesToHandle": [
-        "Test with various data volumes and edge cases",
-        "Verify graceful degradation for network issues"
+        "Password reset for non-existent email addresses",
+        "Multiple password reset attempts",
+        "Reset links used after expiration",
+        "Email delivery failures"
       ],
       "cycle": 4,
-      "cycleName": "Launch Prep",
+      "cycleName": "Polish and Enhancement",
       "order": 4
     }
   ],
@@ -823,53 +905,54 @@
     {
       "number": 1,
       "name": "Foundation",
-      "description": "Core setup and essential infrastructure",
+      "description": "Core setup, authentication, and basic task structure",
       "tasks": [
         "T001",
         "T002",
         "T003",
         "T004",
-        "T005"
+        "T005",
+        "T006"
       ],
       "totalEffort": "large"
     },
     {
       "number": 2,
-      "name": "Core Features",
-      "description": "Main task management functionality",
+      "name": "Core Task Management",
+      "description": "Essential task operations and status tracking",
       "tasks": [
-        "T006",
         "T007",
         "T008",
         "T009",
         "T010",
-        "T011"
+        "T011",
+        "T012"
       ],
       "totalEffort": "large"
     },
     {
       "number": 3,
-      "name": "Organization & Enhancement",
-      "description": "Categories, due dates, and user experience polish",
+      "name": "Priority and Organization",
+      "description": "Task prioritization, due dates, and categorization",
       "tasks": [
-        "T012",
         "T013",
         "T014",
         "T015",
         "T016",
-        "T017"
+        "T017",
+        "T018"
       ],
       "totalEffort": "medium"
     },
     {
       "number": 4,
-      "name": "Launch Prep",
-      "description": "Search, filtering, and final optimization",
+      "name": "Polish and Enhancement",
+      "description": "UI improvements, validation, and user experience enhancements",
       "tasks": [
-        "T018",
         "T019",
         "T020",
-        "T021"
+        "T021",
+        "T022"
       ],
       "totalEffort": "medium"
     }

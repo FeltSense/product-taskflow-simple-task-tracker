@@ -1,44 +1,46 @@
 'use client'
 
 import { useState } from 'react'
-import Link from 'next/link'
 import { Menu, X } from 'lucide-react'
+import Link from 'next/link'
 
 interface HeaderProps {
   className?: string
 }
 
 export default function Header({ className }: HeaderProps) {
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
+  const [isMenuOpen, setIsMenuOpen] = useState(false)
 
-  const toggleMobileMenu = () => {
-    setIsMobileMenuOpen(!isMobileMenuOpen)
+  const toggleMenu = () => {
+    setIsMenuOpen(!isMenuOpen)
   }
 
   return (
-    <header className={`sticky top-0 z-50 bg-white/95 backdrop-blur-sm border-b border-gray-200 ${className}`}>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-        <div className="flex justify-between items-center h-16">
+    <header className={`sticky top-0 z-50 w-full border-b border-gray-200 bg-white/95 backdrop-blur-sm ${className}`}>
+      <div className="mx-auto max-w-7xl px-4 sm:px-6 lg:px-8">
+        <div className="flex h-16 items-center justify-between">
           {/* Logo */}
-          <Link href="/" className="flex items-center space-x-3">
-            <div className="w-8 h-8 rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600 flex items-center justify-center">
-              <span className="text-white font-bold text-sm">T</span>
-            </div>
-            <span className="font-semibold text-gray-900 text-lg">TaskFlow</span>
-          </Link>
+          <div className="flex items-center">
+            <Link href="/" className="flex items-center space-x-2">
+              <div className="flex h-8 w-8 items-center justify-center rounded-lg bg-gradient-to-br from-indigo-500 to-purple-600">
+                <div className="h-4 w-4 rounded bg-white"></div>
+              </div>
+              <span className="text-xl font-semibold text-gray-900">TaskFlow</span>
+            </Link>
+          </div>
 
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
-            <Link href="/features" className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+            <Link href="/features" className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
               Features
             </Link>
-            <Link href="/pricing" className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+            <Link href="/pricing" className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
               Pricing
             </Link>
-            <Link href="/about" className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+            <Link href="/about" className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
               About
             </Link>
-            <Link href="/contact" className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium">
+            <Link href="/contact" className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors">
               Contact
             </Link>
           </nav>
@@ -46,84 +48,86 @@ export default function Header({ className }: HeaderProps) {
           {/* Desktop Auth Buttons */}
           <div className="hidden md:flex items-center space-x-4">
             <Link 
-              href="/signin" 
-              className="text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium px-4 py-2"
+              href="/signin"
+              className="text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
             >
               Sign In
             </Link>
             <Link 
-              href="/signup" 
-              className="bg-[#6366f1] text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-[#5855eb] transition-colors shadow-sm"
+              href="/signup"
+              className="inline-flex items-center justify-center rounded-lg px-4 py-2 text-sm font-medium text-white transition-colors hover:opacity-90"
+              style={{ backgroundColor: '#6b6ef2' }}
             >
               Get Started
             </Link>
           </div>
 
-          {/* Mobile menu button */}
+          {/* Mobile Menu Button */}
           <button
-            onClick={toggleMobileMenu}
-            className="md:hidden p-2 rounded-lg text-gray-600 hover:text-gray-900 hover:bg-gray-100 transition-colors"
-            aria-label="Toggle menu"
+            onClick={toggleMenu}
+            className="md:hidden inline-flex items-center justify-center rounded-lg p-2 text-gray-700 hover:bg-gray-100 transition-colors"
           >
-            {isMobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+            {isMenuOpen ? (
+              <X className="h-5 w-5" />
+            ) : (
+              <Menu className="h-5 w-5" />
+            )}
           </button>
         </div>
-      </div>
 
-      {/* Mobile Menu */}
-      {isMobileMenuOpen && (
-        <div className="md:hidden bg-white border-t border-gray-200">
-          <div className="px-4 py-4 space-y-4">
-            <nav className="space-y-3">
-              <Link 
-                href="/features" 
-                className="block text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+        {/* Mobile Menu */}
+        {isMenuOpen && (
+          <div className="md:hidden border-t border-gray-200 bg-white">
+            <div className="px-2 pt-2 pb-3 space-y-1">
+              <Link
+                href="/features"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 Features
               </Link>
-              <Link 
-                href="/pricing" 
-                className="block text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Link
+                href="/pricing"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 Pricing
               </Link>
-              <Link 
-                href="/about" 
-                className="block text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Link
+                href="/about"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 About
               </Link>
-              <Link 
-                href="/contact" 
-                className="block text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Link
+                href="/contact"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 Contact
               </Link>
-            </nav>
-            
-            <div className="pt-4 border-t border-gray-200 space-y-3">
-              <Link 
-                href="/signin" 
-                className="block text-gray-600 hover:text-gray-900 transition-colors text-sm font-medium py-2"
-                onClick={() => setIsMobileMenuOpen(false)}
+            </div>
+            <div className="border-t border-gray-200 px-2 pt-3 pb-3 space-y-1">
+              <Link
+                href="/signin"
+                className="block px-3 py-2 text-base font-medium text-gray-700 hover:text-gray-900 hover:bg-gray-50 rounded-lg transition-colors"
+                onClick={() => setIsMenuOpen(false)}
               >
                 Sign In
               </Link>
-              <Link 
-                href="/signup" 
-                className="block w-full bg-[#6366f1] text-white px-4 py-3 rounded-lg text-sm font-medium hover:bg-[#5855eb] transition-colors shadow-sm text-center"
-                onClick={() => setIsMobileMenuOpen(false)}
+              <Link
+                href="/signup"
+                className="block px-3 py-2 text-base font-medium text-white rounded-lg transition-colors hover:opacity-90"
+                style={{ backgroundColor: '#6b6ef2' }}
+                onClick={() => setIsMenuOpen(false)}
               >
                 Get Started
               </Link>
             </div>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </header>
   )
 }

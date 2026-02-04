@@ -1,22 +1,15 @@
 import { NextRequest, NextResponse } from 'next/server';
-import { createClient } from '@supabase/supabase-js';
-
-const supabaseUrl = process.env.NEXT_PUBLIC_SUPABASE_URL!;
-const supabaseServiceKey = process.env.SUPABASE_SERVICE_ROLE_KEY!;
-
-function createServerSupabase() {
-  return createClient(supabaseUrl, supabaseServiceKey);
-}
+import { createServerSupabase } from '@/lib/supabase-server';
 
 interface RouteParams {
-  params: { id: string };
+  params: Promise<{ id: string }>;
 }
 
 // GET /api/tasks/[id] - Get single task
 export async function GET(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createServerSupabase();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
 
     const { data, error } = await supabase
       .from('tasks')
@@ -41,8 +34,8 @@ export async function GET(request: NextRequest, { params }: RouteParams) {
 // PATCH /api/tasks/[id] - Update task
 export async function PATCH(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createServerSupabase();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
     const body = await request.json();
 
     // Get authenticated user
@@ -72,8 +65,8 @@ export async function PATCH(request: NextRequest, { params }: RouteParams) {
 // DELETE /api/tasks/[id] - Delete task
 export async function DELETE(request: NextRequest, { params }: RouteParams) {
   try {
-    const supabase = createServerSupabase();
-    const { id } = params;
+    const supabase = await createServerSupabase();
+    const { id } = await params;
 
     // Get authenticated user
     const { data: { user }, error: authError } = await supabase.auth.getUser();

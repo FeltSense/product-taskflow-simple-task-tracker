@@ -1,80 +1,83 @@
 # Development Tasks
 
 ## Cycle 1: Foundation
-Core setup and essential infrastructure
+Core setup, authentication, and basic task structure
 
-- [ ] **T001**: Set up database schema for tasks and users
-  - Design and implement the core database structure to store user accounts, tasks, and categories. This...
+- [ ] **T001**: Set up database schema for users and tasks
+  - Design and implement the core database tables to store user accounts and task data. This foundation ...
   - Effort: medium | Complexity: medium
-- [ ] **T002**: Implement user registration and login API (blocked by: T001)
-  - Build secure authentication endpoints that allow users to create accounts and authenticate. This ena...
-  - Effort: medium | Complexity: high
-- [ ] **T003**: Create authentication middleware and session management (blocked by: T002)
-  - Implement middleware to verify user tokens and manage authenticated sessions. This ensures only auth...
+- [ ] **T002**: Build user registration and login API endpoints (blocked by: T001)
+  - Create secure authentication endpoints that handle user registration, login, and password validation...
   - Effort: medium | Complexity: medium
-- [ ] **T004**: Build login and registration user interface (blocked by: T002)
-  - Create responsive forms for user authentication with proper validation and error handling. This prov...
+- [ ] **T003**: Create user registration and login forms (blocked by: T002)
+  - Build responsive web forms for user registration and login with proper validation and error handling...
   - Effort: medium | Complexity: low
-- [ ] **T005**: Implement main application layout and navigation (blocked by: T004)
-  - Create the core UI structure with header, navigation, and main content areas. This provides the foun...
-  - Effort: medium | Complexity: low
-
-## Cycle 2: Core Features
-Main task management functionality
-
-- [ ] **T006**: Build task creation API endpoint (blocked by: T001, T003)
-  - Implement backend endpoint to create new tasks with validation for required fields. This core functi...
-  - Effort: medium | Complexity: low
-- [ ] **T007**: Build task retrieval and listing API (blocked by: T001, T003)
-  - Implement endpoint to fetch user's tasks with basic sorting and pagination. This enables users to vi...
+- [ ] **T004**: Implement session management and authentication middleware (blocked by: T002)
+  - Create middleware that manages user sessions and protects authenticated routes throughout the applic...
   - Effort: medium | Complexity: medium
-- [ ] **T008**: Build task update and deletion API (blocked by: T001, T003)
-  - Implement endpoints for editing existing tasks and deleting unwanted tasks. This completes the core ...
-  - Effort: medium | Complexity: medium
-- [ ] **T009**: Create task creation form component (blocked by: T005, T006)
-  - Build an intuitive form interface for creating new tasks with fields for title, description, and due...
+- [ ] **T005**: Build main application layout and navigation (blocked by: T003, T004)
+  - Create the primary application shell with navigation, header, and main content areas. This layout pr...
   - Effort: medium | Complexity: low
-- [ ] **T010**: Build task list display component (blocked by: T005, T007)
-  - Create a responsive component to display tasks in an organized list format with visual hierarchy. Th...
-  - Effort: medium | Complexity: medium
-- [ ] **T011**: Implement task editing and deletion interface (blocked by: T005, T008)
-  - Build intuitive controls for editing task details and deleting tasks with confirmation dialogs. This...
+- [ ] **T006**: Create task data model and API structure (blocked by: T001, T004)
+  - Define the task data structure and create API endpoints for basic CRUD operations on tasks. This est...
   - Effort: medium | Complexity: medium
 
-## Cycle 3: Organization & Enhancement
-Categories, due dates, and user experience polish
+## Cycle 2: Core Task Management
+Essential task operations and status tracking
 
-- [ ] **T012**: Build category management API (blocked by: T001, T003)
-  - Implement backend endpoints for creating, updating, and deleting task categories. This enables users...
-  - Effort: medium | Complexity: low
-- [ ] **T013**: Implement task status toggle functionality (blocked by: T010, T008)
-  - Build the core complete/incomplete status management with visual feedback. This provides users with ...
+- [ ] **T007**: Build task creation form and functionality (blocked by: T005, T006)
+  - Create an intuitive form that allows users to add new tasks with title, description, due date, and p...
+  - Effort: medium | Complexity: medium
+- [ ] **T008**: Build main task list display component (blocked by: T005, T006)
+  - Create the primary interface for viewing all user tasks with proper formatting, sorting, and visual ...
+  - Effort: medium | Complexity: medium
+- [ ] **T009**: Implement task editing and deletion functionality (blocked by: T006, T008)
+  - Add the ability to modify existing tasks and delete unwanted ones through intuitive UI controls. Thi...
+  - Effort: medium | Complexity: medium
+- [ ] **T010**: Create task completion toggle functionality (blocked by: T007, T008)
+  - Implement the ability to mark tasks as complete or incomplete with immediate visual feedback and sta...
   - Effort: small | Complexity: low
-- [ ] **T014**: Build due date tracking and visual indicators (blocked by: T010)
-  - Implement due date assignment and visual highlighting for upcoming and overdue tasks. This helps use...
-  - Effort: medium | Complexity: medium
-- [ ] **T015**: Create category selection and management interface (blocked by: T009, T012)
-  - Build UI components for creating categories and assigning them to tasks. This enables users to organ...
-  - Effort: medium | Complexity: medium
-- [ ] **T016**: Enhance task list with completion status visual design (blocked by: T010, T013)
-  - Improve task list display to clearly distinguish completed and active tasks with strikethrough text,...
+- [ ] **T011**: Implement visual indicators for task status (blocked by: T009, T010)
+  - Create clear visual distinctions between completed and incomplete tasks using styling, icons, and la...
   - Effort: small | Complexity: low
-- [ ] **T017**: Implement task sorting and basic organization features (blocked by: T011, T014)
-  - Add sorting options for tasks by due date, creation date, and completion status. This helps users or...
+- [ ] **T012**: Add completion timestamp tracking and display (blocked by: T010, T011)
+  - Store and display when tasks were completed to provide users with progress insights and a sense of a...
+  - Effort: small | Complexity: low
+
+## Cycle 3: Priority and Organization
+Task prioritization, due dates, and categorization
+
+- [ ] **T013**: Implement priority level assignment and indicators (blocked by: T009)
+  - Add the ability to set High, Medium, or Low priority levels for tasks with clear visual indicators l...
+  - Effort: medium | Complexity: low
+- [ ] **T014**: Create priority-based task sorting and filtering (blocked by: T013)
+  - Allow users to sort their task list by priority level and filter to show only high-priority items. T...
+  - Effort: medium | Complexity: medium
+- [ ] **T015**: Design prominent display for high-priority tasks (blocked by: T013, T014)
+  - Create visual emphasis for high-priority tasks to ensure they stand out in the task list and capture...
+  - Effort: small | Complexity: low
+- [ ] **T016**: Build due date calendar picker and validation
+  - Implement a user-friendly date picker interface for setting task due dates with proper validation to...
+  - Effort: medium | Complexity: medium
+- [ ] **T017**: Create overdue and upcoming deadline indicators (blocked by: T016)
+  - Implement visual alerts for overdue tasks and approaching deadlines to help users manage time-sensit...
+  - Effort: medium | Complexity: medium
+- [ ] **T018**: Implement due date sorting and filtering options (blocked by: T016, T017)
+  - Add sorting by due date (earliest first) and filtering options to show only overdue tasks or tasks d...
   - Effort: medium | Complexity: medium
 
-## Cycle 4: Launch Prep
-Search, filtering, and final optimization
+## Cycle 4: Polish and Enhancement
+UI improvements, validation, and user experience enhancements
 
-- [ ] **T018**: Build search functionality for tasks (blocked by: T007)
-  - Implement text search across task titles and descriptions with real-time filtering. This enables use...
+- [ ] **T019**: Build task category creation and management (blocked by: T018)
+  - Create the interface and logic for users to create custom categories or lists to organize their task...
+  - Effort: large | Complexity: medium
+- [ ] **T020**: Implement task assignment to categories (blocked by: T012, T019)
+  - Add the ability to assign tasks to categories during creation and editing, with easy category switch...
   - Effort: medium | Complexity: medium
-- [ ] **T019**: Implement category and status filtering (blocked by: T015, T017, T018)
-  - Build filtering interface to show only tasks from specific categories or with particular completion ...
+- [ ] **T021**: Create category filtering and organization views (blocked by: T019, T020)
+  - Build filtering options to show tasks from specific categories and create organized views where user...
   - Effort: medium | Complexity: medium
-- [ ] **T020**: Optimize application performance and loading states (blocked by: T007, T018)
-  - Implement performance optimizations including lazy loading, caching, and smooth loading states. This...
-  - Effort: large | Complexity: high
-- [ ] **T021**: Conduct final testing and bug fixes (blocked by: T016, T019, T020)
-  - Perform comprehensive testing across all features, browsers, and devices to identify and fix critica...
+- [ ] **T022**: Add password reset and basic account settings (blocked by: T021)
+  - Implement password reset functionality and basic account management features to complete the user au...
   - Effort: medium | Complexity: medium
